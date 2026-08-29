@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Vehicle {
+  id        String    @id @default(cuid())
+  plate     String    @unique
+  model     String
+  year      Int
+  mileage   Int
+  status    String    @default("active")
+  createdAt DateTime  @default(now())
+  expenses  Expense[]
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  type        String
+  amount      Float
+  date        DateTime @default(now())
+  description String?
+  createdAt   DateTime @default(now())
+}
