@@ -64,3 +64,12 @@ export async function createExpense(formData: {
 
   revalidatePath("/");
 }
+// Zmiana statusu pojazdu
+export async function updateVehicleStatus(id: string, status: string) {
+  await prisma.vehicle.update({
+    where: { id },
+    data: { status },
+  });
+
+  revalidatePath("/");
+}

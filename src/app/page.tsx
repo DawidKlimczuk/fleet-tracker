@@ -10,14 +10,14 @@ import {
   Plus, 
   DollarSign, 
   ShieldCheck, 
-  CheckCircle2, 
   Receipt, 
+  CheckCircle2, 
   BarChart3, 
   X,
   Loader2
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { getFleetData, createVehicle, createExpense } from "./actions";
+import { getFleetData, createVehicle, createExpense, updateVehicleStatus } from "./actions";
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
@@ -81,6 +81,13 @@ export default function Dashboard() {
     name: v.plate,
     tco: v.totalCost,
   }));
+
+  const handleStatusChange = async (vehicleId: string, newStatus: string) => {
+    startTransition(async () => {
+      await updateVehicleStatus(vehicleId, newStatus);
+      await refreshData();
+    });
+  };
 
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -282,9 +289,22 @@ export default function Dashboard() {
                             </td>
                             <td className="py-3.5 text-slate-300 font-mono">{formatNumber(v.mileage)} km</td>
                             <td className="py-3.5">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                W trasie
-                              </span>
+                              <select
+                                value={v.status || "active"}
+                                disabled={isPending}
+                                onChange={(e) => handleStatusChange(v.id, e.target.value)}
+                                className={`text-[11px] font-semibold rounded-lg px-2.5 py-1 border focus:outline-none cursor-pointer transition ${
+                                  v.status === "active"
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                    : v.status === "service"
+                                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                    : "bg-slate-800 text-slate-400 border-slate-700"
+                                }`}
+                              >
+                                <option value="active" className="bg-slate-900 text-emerald-400">🟢 W trasie</option>
+                                <option value="service" className="bg-slate-900 text-amber-400">🟡 W serwisie</option>
+                                <option value="inactive" className="bg-slate-900 text-slate-400">⚪ Wycofany</option>
+                              </select>
                             </td>
                             <td className="py-3.5 text-right font-bold text-violet-300 font-mono">
                               {formatNumber(v.totalCost)} PLN
@@ -348,7 +368,7 @@ export default function Dashboard() {
                     <div>
                       <label className="text-xs font-semibold text-slate-300 mb-1 block">Kwota Brutto (PLN)</label>
                       <input 
-                        type="number"
+                        type="number" 
                         placeholder="np. 3500"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
@@ -360,7 +380,7 @@ export default function Dashboard() {
                     <div>
                       <label className="text-xs font-semibold text-slate-300 mb-1 block">Opis / Nr faktury</label>
                       <input 
-                        type="text"
+                        type="text" 
                         placeholder="np. Tankowanie 500L Orlen"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
@@ -424,9 +444,22 @@ export default function Dashboard() {
                           <h3 className="text-lg font-bold text-white">{v.model}</h3>
                           <p className="text-xs font-mono text-violet-400">{v.plate} • Rok: {v.year}</p>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400">
-                          W trasie
-                        </span>
+                        <select
+                          value={v.status || "active"}
+                          disabled={isPending}
+                          onChange={(e) => handleStatusChange(v.id, e.target.value)}
+                          className={`text-xs font-semibold rounded-lg px-3 py-1.5 border focus:outline-none cursor-pointer transition ${
+                            v.status === "active"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                              : v.status === "service"
+                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                              : "bg-slate-800 text-slate-400 border-slate-700"
+                          }`}
+                        >
+                          <option value="active" className="bg-slate-900 text-emerald-400">🟢 W trasie</option>
+                          <option value="service" className="bg-slate-900 text-amber-400">🟡 W serwisie</option>
+                          <option value="inactive" className="bg-slate-900 text-slate-400">⚪ Wycofany</option>
+                        </select>
                       </div>
 
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
