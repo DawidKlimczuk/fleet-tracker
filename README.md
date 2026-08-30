@@ -46,8 +46,6 @@ cd fleet-tracker
 npm install
 2. Configure Environment Variables  
 Create a .env file in the root directory:  
-
-Fragment kodu
 DATABASE_URL="postgresql://postgres.[YOUR-PROJECT]:[PASSWORD]@aws-0-[REGION][.pooler.supabase.com:6543/postgres?pgbouncer=true](https://.pooler.supabase.com:6543/postgres?pgbouncer=true)"
 DIRECT_URL="postgresql://postgres.[YOUR-PROJECT]:[PASSWORD]@aws-0-[REGION][.pooler.supabase.com:5432/postgres](https://.pooler.supabase.com:5432/postgres)"
 3. Sync Database Schema & Run
